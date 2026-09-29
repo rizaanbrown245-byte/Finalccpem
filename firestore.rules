@@ -1,0 +1,64 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Public settings
+    match /settings/{settingId} {
+      allow read: if isValidId(settingId);
+      allow write: if isAdmin();
+    }
+
+    // Approved community posts are publicly readable
+    match /community_posts/{postId} {
+      allow read: if isValidId(postId) && (resource.data.status == 'APPROVED' || (isSignedIn() && (resource.data.memberId == request.auth.uid || isAdmin())));
+      allow create: if isSignedIn() && request.resource.data.memberId == request.auth.uid;
+      allow update: if isSignedIn() && (
+        isAdmin() || 
+        (resource.data.memberId == request.auth.uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'description', 'photos', 'location', 'category', 'peopleHelped', 'status', 'updatedAt']))
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Community issues: any resident can create an issue. Reading status by reference requires valid id.
+    match /community_issues/{issueId} {
+      allow read: if isValidId(issueId);
+      allow create: if request.resource.data.referenceNumber is string && request.resource.data.referenceNumber.size() <= 40;
+      allow update, delete: if isAdmin();
+    }
+
+    // Articles: published articles are public
+    match /articles/{articleId} {
+      allow read: if isValidId(articleId) && (resource.data.status == 'PUBLISHED' || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    // Supporters: only confirmed supporters are public
+    match /supporters/{supporterId} {
+      allow read: if isValidId(supporterId) && resource.data.isConfirmed == true;
+      allow write: if isAdmin();
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow read: if isValidId(userId) && (isSignedIn() && (request.auth.uid == userId || isAdmin()));
+      allow write: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+    }
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Registered member or administrator account",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "format": "email", "maxLength": 120 },
+        "role": { "type": "string", "enum": ["SUPER_ADMIN", "MEMBER"] },
+        "phone": { "type": "string", "maxLength": 30 },
+        "bio": { "type": "string", "maxLength": 500 },
+        "area": { "type": "string", "maxLength": 120 },
+        "avatar": { "type": "string", "maxLength": 2048 },
+        "joinedDate": { "type": "string", "maxLength": 40 },
+        "isActive": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "role", "area"]
+    },
+    "CommunityPost": {
+      "title": "CommunityPost",
+      "description": "Field update or activity posted by an authorized community member",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "maxLength": 200 },
+        "memberId": { "type": "string", "maxLength": 128 },
+        "memberName": { "type": "string", "maxLength": 100 },
+        "memberAvatar": { "type": "string", "maxLength": 2048 },
+        "date": { "type": "string", "maxLength": 50 },
+        "location": { "type": "string", "maxLength": 150 },
+        "category": { "type": "string", "maxLength": 60 },
+        "description": { "type": "string", "maxLength": 5000 },
+        "peopleHelped": { "type": "number" },
+        "status": { "type": "string", "enum": ["DRAFT", "SUBMITTED", "APPROVED", "REJECTED"] },
+        "donorSupporter": { "type": "string", "maxLength": 150 },
+        "contactInfo": { "type": "string", "maxLength": 150 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "memberId", "category", "description", "status"]
+    },
+    "CommunityIssue": {
+      "title": "CommunityIssue",
+      "description": "Resident-reported community service issue or complaint",
+      "type": "object",
+      "properties": {
+        "referenceNumber": { "type": "string", "maxLength": 40 },
+        "residentName": { "type": "string", "maxLength": 100 },
+        "contactNumber": { "type": "string", "maxLength": 30 },
+        "email": { "type": "string", "maxLength": 120 },
+        "area": { "type": "string", "maxLength": 120 },
+        "streetAddress": { "type": "string", "maxLength": 200 },
+        "category": { "type": "string", "maxLength": 60 },
+        "description": { "type": "string", "maxLength": 3000 },
+        "photoUrl": { "type": "string", "maxLength": 2048 },
+        "status": { "type": "string", "enum": ["NEW", "IN PROGRESS", "REFERRED", "RESOLVED", "CLOSED"] },
+        "adminNotes": { "type": "string", "maxLength": 2000 },
+        "referredTo": { "type": "string", "maxLength": 150 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["referenceNumber", "residentName", "contactNumber", "area", "category", "description", "status"]
+    },
+    "Article": {
+      "title": "Article",
+      "description": "News article or press release about Citizens of PE Metro initiatives",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "maxLength": 250 },
+        "authorName": { "type": "string", "maxLength": 100 },
+        "date": { "type": "string", "maxLength": 50 },
+        "featuredImage": { "type": "string", "maxLength": 2048 },
+        "content": { "type": "string", "maxLength": 20000 },
+        "category": { "type": "string", "maxLength": 60 },
+        "status": { "type": "string", "enum": ["DRAFT", "PUBLISHED"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "authorName", "content", "category", "status"]
+    },
+    "Supporter": {
+      "title": "Supporter",
+      "description": "Organisation or individual providing confirmed support",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "maxLength": 150 },
+        "description": { "type": "string", "maxLength": 1000 },
+        "typeOfSupport": { "type": "string", "maxLength": 200 },
+        "website": { "type": "string", "maxLength": 500 },
+        "isConfirmed": { "type": "boolean" },
+        "badge": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["name", "typeOfSupport", "isConfirmed"]
+    },
+    "Settings": {
+      "title": "Settings",
+      "description": "Platform global configuration and contact details",
+      "type": "object",
+      "properties": {
+        "orgName": { "type": "string", "maxLength": 100 },
+        "founderBio": { "type": "string", "maxLength": 5000 },
+        "phone": { "type": "string", "maxLength": 50 },
+        "whatsapp": { "type": "string", "maxLength": 50 },
+        "email": { "type": "string", "maxLength": 100 },
+        "facebookUrl": { "type": "string", "maxLength": 500 }
+      },
+      "required": ["orgName"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Member and admin user profiles"
+    },
+    "/community_posts/{postId}": {
+      "schema": { "$ref": "#/entities/CommunityPost" },
+      "description": "Community assistance and outreach updates"
+    },
+    "/community_issues/{issueId}": {
+      "schema": { "$ref": "#/entities/CommunityIssue" },
+      "description": "Citizen issue submissions and status tracking"
+    },
+    "/articles/{articleId}": {
+      "schema": { "$ref": "#/entities/Article" },
+      "description": "News announcements and community articles"
+    },
+    "/supporters/{supporterId}": {
+      "schema": { "$ref": "#/entities/Supporter" },
+      "description": "Confirmed community partners and contributors"
+    },
+    "/settings/{settingId}": {
+      "schema": { "$ref": "#/entities/Settings" },
+      "description": "Organisation profile and contact information"
+    }
+  }
+}

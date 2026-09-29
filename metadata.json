@@ -1,0 +1,6 @@
+{
+  "name": "Citizen of PE Metro",
+  "description": "Concerned Citizens of PE Metro Task Team official community portal for Nelson Mandela Bay - community work, safety notices, municipal issue reporting, tracking, and member updates.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
