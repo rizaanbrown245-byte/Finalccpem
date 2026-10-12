@@ -162,17 +162,19 @@ export const MembersView: React.FC = () => {
               <span>Register as Volunteer</span>
             </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                setEditorActiveSection('branding');
-                setIsEditorOpen(true);
-              }}
-              className="flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-300 font-semibold text-sm border border-amber-500/30 transition"
-            >
-              <Sliders className="w-4 h-4" />
-              <span>In-App Editor</span>
-            </button>
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditorActiveSection('branding');
+                  setIsEditorOpen(true);
+                }}
+                className="flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-300 font-semibold text-sm border border-amber-500/30 transition"
+              >
+                <Sliders className="w-4 h-4" />
+                <span>In-App Editor</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -214,31 +216,33 @@ export const MembersView: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setEditingLeader(founder);
-                setIsEditLeaderModalOpen(true);
-              }}
-              className="inline-flex items-center gap-1.5 text-xs text-amber-300 hover:text-white font-semibold px-3 py-1.5 rounded-lg bg-amber-950/70 border border-amber-500/60 transition shadow hover:bg-amber-900"
-            >
-              <Edit2 className="w-3.5 h-3.5 text-amber-400" />
-              <span>Edit Founder & Photo</span>
-            </button>
+          {isAdmin && (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingLeader(founder);
+                  setIsEditLeaderModalOpen(true);
+                }}
+                className="inline-flex items-center gap-1.5 text-xs text-amber-300 hover:text-white font-semibold px-3 py-1.5 rounded-lg bg-amber-950/70 border border-amber-500/60 transition shadow hover:bg-amber-900"
+              >
+                <Edit2 className="w-3.5 h-3.5 text-amber-400" />
+                <span>Edit Founder & Photo</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                setEditorActiveSection('branding');
-                setIsEditorOpen(true);
-              }}
-              className="hidden sm:inline-flex items-center gap-1.5 text-xs text-slate-300 hover:text-white font-medium px-2.5 py-1.5 rounded-lg bg-slate-800 border border-slate-700 transition"
-            >
-              <Sliders className="w-3.5 h-3.5" />
-              <span>In-App Editor</span>
-            </button>
-          </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setEditorActiveSection('branding');
+                  setIsEditorOpen(true);
+                }}
+                className="hidden sm:inline-flex items-center gap-1.5 text-xs text-slate-300 hover:text-white font-medium px-2.5 py-1.5 rounded-lg bg-slate-800 border border-slate-700 transition"
+              >
+                <Sliders className="w-3.5 h-3.5" />
+                <span>In-App Editor</span>
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="relative overflow-hidden bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-2 border-amber-500/40 rounded-3xl p-6 sm:p-10 shadow-2xl shadow-amber-950/20">

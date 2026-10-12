@@ -9,6 +9,7 @@ import {
   PlusCircle,
   FolderUp,
   Trash2,
+  Sparkles,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
@@ -16,13 +17,14 @@ import { GalleryItem } from '../types';
 import { ImageFolderUploader } from './ImageFolderUploader';
 
 export const GalleryView: React.FC = () => {
-  const { gallery, createGalleryItem, deleteGalleryItem } = useApp();
+  const { gallery, createGalleryItem, deleteGalleryItem, clearAllGallery } = useApp();
   const { isAdmin } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [activeImage, setActiveImage] = useState<GalleryItem | null>(null);
 
   // Upload modal state
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [generateModalOpen, setGenerateModalOpen] = useState(false);
   const [uploadTitle, setUploadTitle] = useState('');
   const [uploadCategory, setUploadCategory] = useState<
     'soup-kitchen' | 'water-relief' | 'cleanup' | 'patrol' | 'school-outreach'
@@ -56,6 +58,7 @@ export const GalleryView: React.FC = () => {
         category: uploadCategory,
         image_url: img,
         description: uploadDescription.trim() || 'Photographic evidence from community operations.',
+        event_date: todayDate,
         date: todayDate,
         location: uploadLocation.trim() || 'Nelson Mandela Bay',
       });
@@ -65,6 +68,30 @@ export const GalleryView: React.FC = () => {
     setUploadTitle('');
     setUploadDescription('');
     setUploadedImages([]);
+  };
+
+  const handleQuickAddGenerated = (item: {
+    title: string;
+    category: 'soup-kitchen' | 'water-relief' | 'cleanup' | 'patrol' | 'school-outreach';
+    image_url: string;
+    description: string;
+    location: string;
+  }) => {
+    const todayDate = new Date().toLocaleDateString('en-ZA', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+
+    createGalleryItem({
+      title: item.title,
+      category: item.category,
+      image_url: item.image_url,
+      description: item.description,
+      event_date: todayDate,
+      date: todayDate,
+      location: item.location,
+    });
   };
 
   const handleDelete = (id: string, e: React.MouseEvent) => {
@@ -96,12 +123,37 @@ export const GalleryView: React.FC = () => {
         <div className="flex flex-wrap items-center gap-2 shrink-0">
           <button
             type="button"
+            onClick={() => setGenerateModalOpen(true)}
+            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold text-xs shadow-md shadow-amber-500/20 transition flex items-center gap-2"
+          >
+            <Sparkles className="w-4 h-4 text-slate-950" />
+            <span>Generate Initiative Photos</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setUploadModalOpen(true)}
             className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs shadow-md transition flex items-center gap-2"
           >
             <FolderUp className="w-4 h-4" />
             <span>Upload Photos / Folder</span>
           </button>
+
+          {isAdmin && gallery.length > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                if (window.confirm('Are you sure you want to clear all pictures from the photo gallery?')) {
+                  clearAllGallery();
+                }
+              }}
+              className="px-3.5 py-2.5 rounded-xl bg-rose-950/70 hover:bg-rose-900 text-rose-300 border border-rose-800/80 font-bold text-xs shadow transition flex items-center gap-1.5"
+              title="Admin: Clear all photos from gallery"
+            >
+              <Trash2 className="w-4 h-4 text-rose-400" />
+              <span>Clear All Photos ({gallery.length})</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -129,6 +181,39 @@ export const GalleryView: React.FC = () => {
           </button>
         ))}
       </div>
+
+      {/* Empty State when no photos in gallery */}
+      {filteredGallery.length === 0 && (
+        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-10 text-center space-y-4 shadow-md">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-slate-800 flex items-center justify-center text-slate-400">
+            <ImageIcon className="w-7 h-7" />
+          </div>
+          <div className="space-y-1.5 max-w-md mx-auto">
+            <h3 className="text-lg font-bold text-white">No Pictures in Gallery</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              All demo pictures have been cleared. Upload authentic field photos from your camera or choose local Gqeberha community work templates to populate the gallery.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => setUploadModalOpen(true)}
+              className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow"
+            >
+              <FolderUp className="w-4 h-4" />
+              <span>Upload Photos / Album</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setGenerateModalOpen(true)}
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold text-xs transition flex items-center gap-1.5 shadow"
+            >
+              <Sparkles className="w-4 h-4 text-slate-950" />
+              <span>Generate Initiative Imagery</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Gallery Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -337,6 +422,137 @@ export const GalleryView: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Generate Community Work Initiative Imagery Modal */}
+      {generateModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-2xl p-6 sm:p-7 space-y-5 shadow-2xl my-8 max-h-[92vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">
+                    Gqeberha Community Initiative Imagery
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Authentic visual documentation of local Nelson Mandela Bay civic and relief actions.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setGenerateModalOpen(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Click any of the generated community work initiative photo cards below to add it directly to your official gallery:
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  {
+                    title: 'Helenvale Community Hall Soup Kitchen & Relief',
+                    category: 'soup-kitchen' as const,
+                    image_url: '/src/assets/images/pe_soup_kitchen_1791777378227.jpg',
+                    description: 'Volunteers and task team members preparing nutritious hot meals and distributing provisions to families outside Helenvale Community Hall.',
+                    location: 'Helenvale, Gqeberha',
+                    tag: 'Feeding Scheme',
+                  },
+                  {
+                    title: 'Emergency Clean Water Tanker Dispatch',
+                    category: 'water-relief' as const,
+                    image_url: '/src/assets/images/pe_water_relief_1791777390106.jpg',
+                    description: 'Civic water tanker supplying potable drinking water directly to elderly residents and households during pipe repair outages.',
+                    location: 'Zwide / KwaZakhele, PE Metro',
+                    tag: 'Water Relief',
+                  },
+                  {
+                    title: 'Verge Cleanup & Community Tree Planting Action',
+                    category: 'cleanup' as const,
+                    image_url: '/src/assets/images/pe_clean_up_1791777400970.jpg',
+                    description: 'Local youth volunteers in high-visibility gear clearing waste from municipal road verges and planting indigenous trees.',
+                    location: 'Gelvandale, Gqeberha',
+                    tag: 'Civic Cleanup',
+                  },
+                  {
+                    title: 'Civilian Safety Patrol & CPF Night Briefing',
+                    category: 'patrol' as const,
+                    image_url: '/src/assets/images/pe_civic_patrol_1791777411343.jpg',
+                    description: 'Neighborhood watch and CPF volunteer patrol monitors conducting dusk briefing in reflective gear before evening street walk.',
+                    location: 'Bethelsdorp Police Precinct',
+                    tag: 'Safety Patrol',
+                  },
+                  {
+                    title: 'Back-to-School Backpacks & Stationery Handover',
+                    category: 'school-outreach' as const,
+                    image_url: '/src/assets/images/pe_school_outreach_1791777421127.jpg',
+                    description: 'Donation of backpacks, school uniforms and stationery kits to primary school learners in Northern Areas.',
+                    location: 'Arcadia & Salt Lake, Gqeberha',
+                    tag: 'Education Outreach',
+                  },
+                ].map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="group bg-slate-950 border border-slate-800 hover:border-amber-500/60 rounded-2xl overflow-hidden transition flex flex-col justify-between p-3 space-y-3"
+                  >
+                    <div className="relative h-40 rounded-xl overflow-hidden">
+                      <img
+                        src={item.image_url}
+                        alt={item.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        referrerPolicy="no-referrer"
+                      />
+                      <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-slate-900/90 text-amber-300 text-[10px] font-bold">
+                        {item.tag}
+                      </span>
+                    </div>
+
+                    <div className="space-y-1">
+                      <h4 className="text-white font-bold text-xs line-clamp-1">{item.title}</h4>
+                      <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
+                        {item.description}
+                      </p>
+                      <div className="flex items-center gap-1 text-[10px] text-slate-400 pt-1">
+                        <MapPin className="w-3 h-3 text-blue-400 shrink-0" />
+                        <span>{item.location}</span>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleQuickAddGenerated(item);
+                        setGenerateModalOpen(false);
+                      }}
+                      className="w-full py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs transition flex items-center justify-center gap-1.5 shadow"
+                    >
+                      <PlusCircle className="w-3.5 h-3.5" />
+                      <span>Add to Active Gallery</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="pt-2 flex justify-end border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setGenerateModalOpen(false)}
+                className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold text-xs hover:bg-slate-700 transition"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

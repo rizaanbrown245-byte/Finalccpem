@@ -165,6 +165,7 @@ export interface GalleryItem {
   category: string;
   image_url: string;
   event_date: string;
+  date?: string;
   location: string;
 }
 

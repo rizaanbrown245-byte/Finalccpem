@@ -13,8 +13,10 @@ import {
   Copy,
   Check,
   Search,
+  Bell,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { useNotifications } from '../context/NotificationContext';
 import { IssueCategory, IssueUrgency } from '../types';
 import { ImageFolderUploader } from './ImageFolderUploader';
 
@@ -69,6 +71,7 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
   onTrackSubmittedIssue,
 }) => {
   const { createIssue } = useApp();
+  const { followIssue } = useNotifications();
 
   const [category, setCategory] = useState<IssueCategory>('pothole');
   const [title, setTitle] = useState('');
@@ -105,6 +108,9 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
       reporter_contact: reporterContact.trim() || 'Not Provided',
       images: attachedImages,
     });
+
+    // Auto-follow issue for local status update notifications
+    followIssue(created.reference_number, created.status);
 
     setSubmittedRef(created.reference_number);
   };
@@ -178,7 +184,7 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
                 </p>
               </div>
 
-              <div className="bg-slate-950 border border-red-500/40 rounded-xl p-4 max-w-sm mx-auto space-y-2">
+              <div className="bg-slate-950 border border-blue-500/40 rounded-xl p-4 max-w-sm mx-auto space-y-2">
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                   Your Official Tracking Reference
                 </span>
@@ -202,6 +208,14 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
                 <p className="text-[10px] text-slate-400">
                   Keep this reference to check investigation and repair status at any time.
                 </p>
+              </div>
+
+              {/* Notification auto-tracking active badge */}
+              <div className="flex items-center justify-center gap-2 text-xs text-amber-300 bg-amber-950/40 border border-amber-800/60 rounded-xl p-2.5 max-w-sm mx-auto text-left">
+                <Bell className="w-4 h-4 text-amber-400 shrink-0" />
+                <span>
+                  <strong>Notifications active:</strong> You will automatically receive local alerts whenever municipal officials investigate, dispatch, or resolve this report.
+                </span>
               </div>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">

@@ -18,9 +18,12 @@ import {
   Award,
   Sliders,
   MessageSquare,
+  Bell,
+  Database,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
+import { useNotifications } from '../context/NotificationContext';
 import { FacebookImporterModal } from './FacebookImporterModal';
 
 interface HeaderProps {
@@ -42,6 +45,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [fbImporterOpen, setFbImporterOpen] = useState(false);
   const { settings, issues, setIsEditorOpen } = useApp();
   const { currentUser, isAdmin, logout } = useAuth();
+  const { unreadCount, setIsPanelOpen } = useNotifications();
 
   const unresolvedCount = issues.filter((i) => i.status !== 'Resolved').length;
 
@@ -60,6 +64,7 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'gallery', label: 'Gallery', icon: ImageIcon },
     { id: 'supporters', label: 'Donate', icon: Award },
     { id: 'contact', label: 'Contact', icon: PhoneCall },
+    { id: 'supabase', label: 'Backend (Supabase)', icon: Database, badge: 'Cloud' },
   ];
 
   const handleNavClick = (id: string) => {
@@ -126,13 +131,15 @@ export const Header: React.FC<HeaderProps> = ({
             </span>
             <p className="truncate font-medium">{settings.alert_banner_text}</p>
           </div>
-          <button
-            type="button"
-            onClick={() => setIsEditorOpen(true)}
-            className="text-[11px] text-amber-400 hover:text-amber-300 font-semibold underline shrink-0 hidden sm:inline"
-          >
-            Edit Ticker
-          </button>
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => setIsEditorOpen(true)}
+              className="text-[11px] text-amber-400 hover:text-amber-300 font-semibold underline shrink-0 hidden sm:inline"
+            >
+              Edit Ticker
+            </button>
+          )}
         </div>
       )}
 
@@ -175,16 +182,18 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Action Buttons (Desktop) */}
         <div className="hidden md:flex items-center gap-2">
-          {/* In-App Content & Site Editor Button */}
-          <button
-            type="button"
-            onClick={() => setIsEditorOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-lg bg-slate-900/90 hover:bg-slate-800 text-amber-300 border border-amber-500/40 hover:border-amber-400 shadow-sm transition"
-            title="Open In-App Content & Site Editor"
-          >
-            <Sliders className="w-3.5 h-3.5 text-amber-400" />
-            <span>In-App Editor</span>
-          </button>
+          {/* In-App Content & Site Editor Button (Admin Only) */}
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => setIsEditorOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-lg bg-slate-900/90 hover:bg-slate-800 text-amber-300 border border-amber-500/40 hover:border-amber-400 shadow-sm transition"
+              title="Open In-App Content & Site Editor (Admin Only)"
+            >
+              <Sliders className="w-3.5 h-3.5 text-amber-400" />
+              <span>In-App Editor</span>
+            </button>
+          )}
 
           <button
             type="button"
@@ -193,6 +202,22 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <Search className="w-3.5 h-3.5 text-blue-400" />
             <span>Track Reference</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsPanelOpen(true)}
+            className="relative flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700 hover:border-amber-500/50 transition"
+            title="Tracked Issue Status Alerts & Notifications"
+            aria-label="View notifications"
+          >
+            <Bell className={`w-3.5 h-3.5 ${unreadCount > 0 ? 'text-amber-400 fill-amber-400' : 'text-slate-400'}`} />
+            <span>Alerts</span>
+            {unreadCount > 0 && (
+              <span className="flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-rose-600 text-[10px] font-black text-white ml-0.5">
+                {unreadCount}
+              </span>
+            )}
           </button>
 
           <button
@@ -231,18 +256,50 @@ export const Header: React.FC<HeaderProps> = ({
             </svg>
             <span>FB Sync</span>
           </button>
+
+          {/* Supabase Cloud Backend Button */}
+          <button
+            type="button"
+            onClick={() => handleNavClick('supabase')}
+            className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-lg border shadow-sm transition ${
+              activeTab === 'supabase'
+                ? 'bg-emerald-600 text-white border-emerald-500'
+                : 'bg-emerald-950/80 hover:bg-emerald-900 text-emerald-200 border-emerald-600/60'
+            }`}
+            title="Open Supabase Cloud Database Backend"
+          >
+            <Database className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Database</span>
+          </button>
         </div>
 
         {/* Mobile menu trigger */}
-        <div className="flex items-center gap-2 md:hidden">
+        <div className="flex items-center gap-1.5 md:hidden">
           <button
             type="button"
-            onClick={() => setIsEditorOpen(true)}
-            className="p-2 text-amber-400 bg-slate-900 border border-amber-700/60 rounded-lg"
-            title="In-App Editor"
+            onClick={() => setIsPanelOpen(true)}
+            className="relative p-2 text-slate-300 bg-slate-900 border border-slate-800 rounded-lg hover:text-white"
+            title="Issue Alerts & Notifications"
+            aria-label="View notifications"
           >
-            <Sliders className="w-4 h-4" />
+            <Bell className={`w-4 h-4 ${unreadCount > 0 ? 'text-amber-400 fill-amber-400' : 'text-slate-400'}`} />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 px-0.5 items-center justify-center rounded-full bg-rose-600 text-[9px] font-black text-white">
+                {unreadCount}
+              </span>
+            )}
           </button>
+
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => setIsEditorOpen(true)}
+              className="p-2 text-amber-400 bg-slate-900 border border-amber-700/60 rounded-lg"
+              title="In-App Editor (Admin Only)"
+            >
+              <Sliders className="w-4 h-4" />
+            </button>
+          )}
           <button
             type="button"
             onClick={onOpenReportModal}
@@ -301,7 +358,7 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-slate-800 bg-[#070d18] px-4 py-4 space-y-3">
-          <div className="grid grid-cols-2 gap-2">
+          <div className={isAdmin ? 'grid grid-cols-2 gap-2' : 'grid grid-cols-1 gap-2'}>
             <button
               type="button"
               onClick={() => {
@@ -313,17 +370,19 @@ export const Header: React.FC<HeaderProps> = ({
               <PlusCircle className="w-4 h-4" />
               <span>Report Issue</span>
             </button>
-            <button
-              type="button"
-              onClick={() => {
-                setIsEditorOpen(true);
-                setMobileMenuOpen(false);
-              }}
-              className="w-full flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-amber-950/70 text-amber-300 border border-amber-700/80 font-bold text-xs"
-            >
-              <Sliders className="w-4 h-4 text-amber-400" />
-              <span>In-App Editor</span>
-            </button>
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => {
+                  setIsEditorOpen(true);
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-amber-950/70 text-amber-300 border border-amber-700/80 font-bold text-xs"
+              >
+                <Sliders className="w-4 h-4 text-amber-400" />
+                <span>In-App Editor</span>
+              </button>
+            )}
           </div>
 
           <div className="space-y-1 pt-2 border-t border-slate-900">

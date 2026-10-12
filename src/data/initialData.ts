@@ -28,8 +28,8 @@ export const INITIAL_ORG_SETTINGS: OrgSettings = {
   founder_quote: 'Giving hope to those who don’t have is not a slogan—it is our daily duty to every child, elder, and family in our metro.',
   founder_phone: '+27 (0)82 555 4911',
   founder_email: 'info@citizenofpemetro.org.za',
-  alert_banner_active: true,
-  alert_banner_text: 'Active Municipal Alert: Multiple burst water pipes reported along Stanford Road & Gelvandale. Task team relief tankers en route.',
+  alert_banner_active: false,
+  alert_banner_text: '',
   contact_email: 'info@citizenofpemetro.org.za',
   contact_phone: '+27 (0)41 453 2200',
   emergency_hotline: '+27 (0)82 555 4911',
@@ -109,58 +109,7 @@ export const EMERGENCY_CONTACTS: EmergencyContact[] = [
   },
 ];
 
-export const INITIAL_SAFETY_NOTICES: CrimeSafetyNotice[] = [
-  {
-    id: 'cs-01',
-    title: 'High Alert: Copper Cable Theft Affecting Substations in Korsten & Neave Industrial',
-    description:
-      'Community patrol groups noted active syndicates targeting mini-substations around Kempston Road and Neave Industrial during load shifts. SAPS Sector 4 and Metro Police have stepped up patrols. Residents are asked to report unbranded bakkies tampering with electrical kiosks immediately.',
-    area: 'Korsten / Neave / Sidwell',
-    alert_level: 'High Alert',
-    category: 'cable-theft',
-    date: 'Today, 08:30 AM',
-    action_required: 'Do not approach suspects. Call Task Team Hotline or SAPS 10111 immediately.',
-    contact_person: 'Patrol Commander Deon V.',
-    emergency_numbers: ['10111', '041 585 1555'],
-  },
-  {
-    id: 'cs-02',
-    title: 'Warning: Follow-home Armed Robberies Targeting Shoppers from Commercial Centers',
-    description:
-      'Reports from Gelvandale and Malabar SAPS stations alert motorists to remain vigilant when leaving shopping complexes on Stanford Road. Ensure you are not being tailed by vehicles with tinted glass. If suspicious, drive to nearest police station.',
-    area: 'Stanford Road Corridor / Gelvandale',
-    alert_level: 'Warning',
-    category: 'burglary',
-    date: 'Yesterday, 18:15 PM',
-    action_required: 'Check rear-view mirrors; keep doors locked and windows closed at intersections.',
-    contact_person: 'Community Policing Forum (CPF)',
-    emergency_numbers: ['041 404 3000'],
-  },
-  {
-    id: 'cs-03',
-    title: 'Neighborhood Watch Patrol Update: Bethelsdorp Ward 31 Night Patrols Active',
-    description:
-      '30 volunteer patrollers completed night perimeter walks across Ext 31 and Ext 34. Zero incidents reported during the 22:00-04:00 shift. Street corner illumination requests have been submitted to the municipal electricity department.',
-    area: 'Bethelsdorp / Extension 31 & 34',
-    alert_level: 'Info',
-    category: 'patrol-update',
-    date: '2 days ago',
-    action_required: 'Volunteer slots open for Friday and Saturday night patrols.',
-    contact_person: 'Ward 31 Volunteer Captain Mark',
-  },
-  {
-    id: 'cs-04',
-    title: 'Scam Advisory: Fake Municipal Water Meter Readers Demanding Cash Spot Fines',
-    description:
-      'Fraudsters posing as municipal technicians in blue overalls are approaching elderly homeowners in Newton Park and Schauderville claiming water meters are tampered with and demanding R500 cash payment. Municipal workers never accept cash on-site.',
-    area: 'Newton Park / Schauderville / Algoa Park',
-    alert_level: 'Warning',
-    category: 'scam-alert',
-    date: '3 days ago',
-    action_required: 'Always demand official NMBM municipal photo identity card with employee barcode.',
-    contact_person: 'Anti-Corruption Desk',
-  },
-];
+export const INITIAL_SAFETY_NOTICES: CrimeSafetyNotice[] = [];
 
 export const INITIAL_COMMUNITY_WORK: CommunityWorkItem[] = [
   {
@@ -172,9 +121,7 @@ export const INITIAL_COMMUNITY_WORK: CommunityWorkItem[] = [
     date: '14 September 2026',
     location: 'Helenvale Community Center Grounds, Gqeberha',
     impact_stat: '850+ Meals Cooked & Served',
-    images: [
-      'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80',
-    ],
+    images: [],
     organizer: 'Sister Grace & Helenvale Task Unit',
     volunteers_count: 24,
   },
@@ -187,9 +134,7 @@ export const INITIAL_COMMUNITY_WORK: CommunityWorkItem[] = [
     date: '11 September 2026',
     location: 'Zwide & KwaZakhele Wards 21 & 24',
     impact_stat: '20,000 Litres Safe Potable Water',
-    images: [
-      'https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=800&q=80',
-    ],
+    images: [],
     organizer: 'NMB Disaster Action volunteers',
     volunteers_count: 18,
   },
@@ -202,10 +147,8 @@ export const INITIAL_COMMUNITY_WORK: CommunityWorkItem[] = [
     date: '06 September 2026',
     location: 'Highfield Road, Schauderville',
     impact_stat: '14 Tonnes Waste Cleared',
-    images: [
-      'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=800&q=80',
-    ],
-    organizer: 'Green PE Metro Youth Collective',
+    images: [],
+    organizer: 'Green PE Youth Collective',
     volunteers_count: 36,
   },
   {
@@ -217,9 +160,7 @@ export const INITIAL_COMMUNITY_WORK: CommunityWorkItem[] = [
     date: '28 August 2026',
     location: 'Bethelsdorp & Arcadia Schools',
     impact_stat: '220 Learners Equipped',
-    images: [
-      'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80',
-    ],
+    images: [],
     organizer: 'Education Support Task Team',
     volunteers_count: 15,
   },
@@ -240,9 +181,7 @@ export const INITIAL_ISSUES: CommunityIssue[] = [
     status: 'Dispatched',
     reporter_name: 'Daryl Kock',
     reporter_contact: '083 412 8890',
-    images: [
-      'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80',
-    ],
+    images: [],
     created_at: '2026-09-15T09:14:00Z',
     updated_at: '2026-09-15T14:30:00Z',
     admin_notes: 'Escalated to NMBM Roads & Stormwater Division. Municipal asphalt patch truck assigned ref #RD-4921.',
@@ -279,9 +218,7 @@ export const INITIAL_ISSUES: CommunityIssue[] = [
     status: 'Under Investigation',
     reporter_name: 'Aunty Brenda Matthews',
     reporter_contact: '072 619 4401',
-    images: [
-      'https://images.unsplash.com/photo-1584467735815-f778f274e296?auto=format&fit=crop&w=800&q=80',
-    ],
+    images: [],
     created_at: '2026-09-16T04:45:00Z',
     updated_at: '2026-09-16T06:10:00Z',
     admin_notes: 'Urgent isolation valve closure required. Escalated to NMBM Water Emergencies Director.',
@@ -412,98 +349,7 @@ export const INITIAL_ISSUES: CommunityIssue[] = [
   },
 ];
 
-export const INITIAL_POSTS: CommunityPost[] = [
-  {
-    id: 'post-01',
-    title: 'Task Team Update: 6 Community Borehole Pumps Restored Ahead of Weekend Heatwave',
-    content:
-      'We are proud to share that through community donations and hard work by our volunteer artisans, all 6 borehole distribution points in Kariega and Bethelsdorp are pumping at 100% capacity! Clean drinking water is available free of charge to all families. Please bring clean 20L containers. Huge thank you to our volunteer welders and plumbing team who worked throughout the night.',
-    author: 'Concerned Citizens Task Team HQ',
-    author_role: 'Executive Task Team',
-    author_avatar: '/logo.svg',
-    category: 'community-work',
-    images: [
-      'https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=800&q=80',
-    ],
-    likes: 184,
-    comments_count: 32,
-    created_at: '2026-09-16T04:30:00Z',
-    location: 'Nelson Mandela Bay Metro (All Wards)',
-    is_pinned: true,
-    source: 'facebook',
-    facebook_post_url: 'https://facebook.com/ConcernedCitizensPEMetro/posts/101',
-    facebook_post_id: 'fb-post-101',
-    comments: [
-      {
-        id: 'c1',
-        author: 'Charmaine Plaatjies',
-        text: 'God bless the Task Team! We were without water for three days in Ext 32 until this pump opened up.',
-        created_at: '2026-09-16 05:15',
-      },
-      {
-        id: 'c2',
-        author: 'Vernon Booysen',
-        text: 'True servant leadership for the people of Nelson Mandela Bay. Respect to all the volunteers.',
-        created_at: '2026-09-16 05:45',
-      },
-    ],
-  },
-  {
-    id: 'post-02',
-    title: 'Crime Alert: Joint SAPS and Civilian Patrols Successful in Gelvandale Ward 13',
-    content:
-      'Following multiple break-in attempts on Tuesday, our civilian neighborhood watch coordinated with Gelvandale SAPS to conduct visible stop-and-search operations along Gail Road and Kobus Road. Two suspected syndicate vehicles were impounded. We urge all street representatives to join our verified WhatsApp crime channel.',
-    author: 'Captain Cedric (CPF Liaison)',
-    author_role: 'Community Safety Officer',
-    author_avatar: '',
-    category: 'crime-safety',
-    images: [
-      'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80',
-    ],
-    likes: 96,
-    comments_count: 14,
-    created_at: '2026-09-15T18:20:00Z',
-    location: 'Gelvandale / Northern Areas',
-    is_pinned: false,
-  },
-  {
-    id: 'post-03',
-    title: 'Saturday Feeding Scheme Call for Vegetables and Dry Goods Donations',
-    content:
-      'This coming Saturday, 19 September, we are aiming to feed 1,200 pensioners and children at the Schauderville Sports Ground. We are appealing to local greengrocers, butcheries, and families who can spare potatoes, onions, carrots, rice, or soup powders. Drop-offs can be made directly at our Korsten dispatch office or we can arrange collection.',
-    author: 'Sister Denise & Kitchen Team',
-    author_role: 'Relief Coordinator',
-    author_avatar: '',
-    category: 'community-work',
-    images: [
-      'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80',
-    ],
-    likes: 142,
-    comments_count: 19,
-    created_at: '2026-09-14T11:00:00Z',
-    location: 'Schauderville Sports Ground',
-    is_pinned: false,
-    source: 'facebook',
-    facebook_post_url: 'https://facebook.com/ConcernedCitizensPEMetro/posts/104',
-    facebook_post_id: 'fb-post-104',
-  },
-  {
-    id: 'post-04',
-    title: 'Municipal Accountability: Over 80 Potholes Reported & 45 Repaired This Month',
-    content:
-      'Through our online Issue Tracker, citizens of Port Elizabeth submitted 84 potholes in August and September. Through direct engagements with the Roads and Transport portfolio committee, 45 of these critical spots on major arterial taxi routes have been officially patched. Continue using the "Report Issue" button on this portal to keep municipal officials accountable!',
-    author: 'Advocacy & Service Delivery Desk',
-    author_role: 'Civic Monitor',
-    author_avatar: '',
-    category: 'municipal',
-    images: [],
-    likes: 215,
-    comments_count: 41,
-    created_at: '2026-09-12T14:10:00Z',
-    location: 'Port Elizabeth Arterial Routes',
-    is_pinned: false,
-  },
-];
+export const INITIAL_POSTS: CommunityPost[] = [];
 
 export const INITIAL_SUPPORTERS: Supporter[] = [
   {
@@ -544,62 +390,7 @@ export const INITIAL_SUPPORTERS: Supporter[] = [
   },
 ];
 
-export const INITIAL_GALLERY: GalleryItem[] = [
-  {
-    id: 'gal-01',
-    title: 'Helenvale Community Soup Kitchen Distribution',
-    description: 'Hot meals served to over 850 children and pensioners.',
-    category: 'Feeding Schemes',
-    image_url: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80',
-    event_date: 'September 2026',
-    location: 'Helenvale, Gqeberha',
-  },
-  {
-    id: 'gal-02',
-    title: 'Emergency Clean Water Tanker Dispatch',
-    description: 'Delivering potable water during infrastructure shutdown in Zwide.',
-    category: 'Disaster Relief',
-    image_url: 'https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=800&q=80',
-    event_date: 'September 2026',
-    location: 'Zwide / KwaZakhele',
-  },
-  {
-    id: 'gal-03',
-    title: 'Youth Clean-Up and Garden Project',
-    description: 'Clearing illegal dumping site to build a community vegetable patch.',
-    category: 'Cleanups',
-    image_url: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=800&q=80',
-    event_date: 'August 2026',
-    location: 'Schauderville',
-  },
-  {
-    id: 'gal-04',
-    title: 'Civilian Patrol Night Briefing',
-    description: 'Volunteers and CPF safety briefing before starting night patrols.',
-    category: 'Safety & Patrols',
-    image_url: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80',
-    event_date: 'August 2026',
-    location: 'Bethelsdorp Police Precinct',
-  },
-  {
-    id: 'gal-05',
-    title: 'School Uniforms and Shoes Handover',
-    description: 'Supporting 220 students with complete back-to-school packs.',
-    category: 'Education',
-    image_url: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80',
-    event_date: 'August 2026',
-    location: 'Arcadia Primary School',
-  },
-  {
-    id: 'gal-06',
-    title: 'Pothole Documentation & Community Repair Action',
-    description: 'Task team civic monitor logging hazardous road subsiding on Stanford Rd.',
-    category: 'Service Delivery',
-    image_url: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80',
-    event_date: 'July 2026',
-    location: 'Gelvandale',
-  },
-];
+export const INITIAL_GALLERY: GalleryItem[] = [];
 
 export const INITIAL_LEADERSHIP: LeadershipMember[] = [
   {

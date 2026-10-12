@@ -30,12 +30,15 @@ import {
   Download,
   RefreshCw,
   Upload,
+  Database,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { IssueStatus, LeadershipMember, PostCategory } from '../types';
 import { FacebookImporterModal } from './FacebookImporterModal';
 import { LogoBrandingEditor } from './LogoBrandingEditor';
+import { SupabaseStatusModal } from './SupabaseStatusModal';
+import { SupabaseBackendView } from './SupabaseBackendView';
 
 export const InAppEditor: React.FC = () => {
   const {
@@ -70,13 +73,14 @@ export const InAppEditor: React.FC = () => {
     resetToDefaults,
   } = useApp();
 
-  const { members, createMember, deleteMember } = useAuth();
+  const { members, createMember, deleteMember, isAdmin } = useAuth();
 
   // Local form states initialized with settings
   const [formSettings, setFormSettings] = useState(settings);
   const [formStats, setFormStats] = useState(stats);
   const [savedBanner, setSavedBanner] = useState(false);
   const [isFbModalOpen, setIsFbModalOpen] = useState(false);
+  const [isDbModalOpen, setIsDbModalOpen] = useState(false);
 
   // New Leadership Officer Form
   const [newLeader, setNewLeader] = useState({
@@ -145,7 +149,14 @@ export const InAppEditor: React.FC = () => {
   const [issueNoteUpdate, setIssueNoteUpdate] = useState('');
   const [issueDepotUpdate, setIssueDepotUpdate] = useState('');
 
-  if (!isEditorOpen) return null;
+  // Ensure editor is closed immediately if user is not an admin
+  useEffect(() => {
+    if (isEditorOpen && !isAdmin) {
+      setIsEditorOpen(false);
+    }
+  }, [isEditorOpen, isAdmin, setIsEditorOpen]);
+
+  if (!isEditorOpen || !isAdmin) return null;
 
   const handleSaveSettings = () => {
     updateSettings(formSettings);
@@ -264,6 +275,7 @@ export const InAppEditor: React.FC = () => {
 
   const navTabs = [
     { id: 'branding', label: 'Branding & Logo', icon: Building2 },
+    { id: 'supabase', label: 'Supabase Backend', icon: Database },
     { id: 'facebook', label: 'Facebook Integration', icon: Globe },
     { id: 'founder', label: 'Founder & Leaders', icon: Award },
     { id: 'members', label: 'Members Directory', icon: Users },
@@ -290,6 +302,9 @@ export const InAppEditor: React.FC = () => {
                 <h2 className="text-base sm:text-lg font-extrabold text-white tracking-tight">
                   In-App Content & Site Editor
                 </h2>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                  Admin Only
+                </span>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                   Live Mode
                 </span>
@@ -307,6 +322,16 @@ export const InAppEditor: React.FC = () => {
                 Updated Live!
               </span>
             )}
+
+            <button
+              type="button"
+              onClick={() => setIsDbModalOpen(true)}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-950/60 hover:bg-emerald-900 text-emerald-300 border border-emerald-800 transition"
+              title="Inspect Supabase Cloud Database setup and sync"
+            >
+              <Database className="w-3.5 h-3.5" />
+              <span>Database</span>
+            </button>
 
             <button
               type="button"
@@ -347,7 +372,7 @@ export const InAppEditor: React.FC = () => {
                 onClick={() => setEditorActiveSection(tab.id)}
                 className={`flex items-center gap-2 px-3.5 py-2.5 text-xs font-bold border-b-2 whitespace-nowrap transition ${
                   isActive
-                    ? 'border-red-500 text-red-400 bg-red-950/30'
+                    ? 'border-blue-500 text-blue-400 bg-blue-950/30'
                     : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
                 }`}
               >
@@ -410,7 +435,7 @@ export const InAppEditor: React.FC = () => {
                       onChange={(e) =>
                         setFormSettings({ ...formSettings, org_name: e.target.value })
                       }
-                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -424,7 +449,7 @@ export const InAppEditor: React.FC = () => {
                       onChange={(e) =>
                         setFormSettings({ ...formSettings, task_team_title: e.target.value })
                       }
-                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -438,7 +463,7 @@ export const InAppEditor: React.FC = () => {
                       onChange={(e) =>
                         setFormSettings({ ...formSettings, motto: e.target.value })
                       }
-                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-amber-300 font-semibold focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-amber-300 font-semibold focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -453,7 +478,7 @@ export const InAppEditor: React.FC = () => {
                         setFormSettings({ ...formSettings, npo_number: e.target.value })
                       }
                       placeholder="NPO: 284-912 | PBO: 930074211"
-                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -467,7 +492,7 @@ export const InAppEditor: React.FC = () => {
                       onChange={(e) =>
                         setFormSettings({ ...formSettings, region: e.target.value })
                       }
-                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
                 </div>
@@ -490,7 +515,7 @@ export const InAppEditor: React.FC = () => {
                       onChange={(e) =>
                         setFormSettings({ ...formSettings, emergency_hotline: e.target.value })
                       }
-                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-red-400 font-mono font-bold focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-red-400 font-mono font-bold focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -504,7 +529,7 @@ export const InAppEditor: React.FC = () => {
                       onChange={(e) =>
                         setFormSettings({ ...formSettings, whatsapp_number: e.target.value })
                       }
-                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-emerald-400 font-mono focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-emerald-400 font-mono focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -518,7 +543,7 @@ export const InAppEditor: React.FC = () => {
                       onChange={(e) =>
                         setFormSettings({ ...formSettings, contact_phone: e.target.value })
                       }
-                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -532,7 +557,7 @@ export const InAppEditor: React.FC = () => {
                       onChange={(e) =>
                         setFormSettings({ ...formSettings, contact_email: e.target.value })
                       }
-                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -546,7 +571,7 @@ export const InAppEditor: React.FC = () => {
                       onChange={(e) =>
                         setFormSettings({ ...formSettings, address: e.target.value })
                       }
-                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
                 </div>
@@ -576,7 +601,7 @@ export const InAppEditor: React.FC = () => {
                         setFormSettings({ ...formSettings, founder_name: e.target.value })
                       }
                       placeholder="Rizaan Brown"
-                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -591,7 +616,7 @@ export const InAppEditor: React.FC = () => {
                         setFormSettings({ ...formSettings, founder_title: e.target.value })
                       }
                       placeholder="Founder & Chief Task Team Convener"
-                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-amber-300 focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-amber-300 focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -606,7 +631,7 @@ export const InAppEditor: React.FC = () => {
                         setFormSettings({ ...formSettings, founder_quote: e.target.value })
                       }
                       placeholder="Giving Hope To Those Who Don't Have..."
-                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-slate-200 italic focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-slate-200 italic focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -621,7 +646,7 @@ export const InAppEditor: React.FC = () => {
                         setFormSettings({ ...formSettings, founder_bio: e.target.value })
                       }
                       placeholder="Visionary civil activist who established the Concerned Citizens..."
-                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -636,7 +661,7 @@ export const InAppEditor: React.FC = () => {
                         setFormSettings({ ...formSettings, founder_phone: e.target.value })
                       }
                       placeholder="+27 (0)82 555 4911"
-                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -651,7 +676,7 @@ export const InAppEditor: React.FC = () => {
                         setFormSettings({ ...formSettings, founder_email: e.target.value })
                       }
                       placeholder="rizaanbrown245@gmail.com"
-                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -734,6 +759,13 @@ export const InAppEditor: React.FC = () => {
                   </button>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* SECTION: SUPABASE BACKEND INTEGRATION */}
+          {editorActiveSection === 'supabase' && (
+            <div className="space-y-6">
+              <SupabaseBackendView />
             </div>
           )}
 
@@ -948,7 +980,7 @@ export const InAppEditor: React.FC = () => {
                       })
                     }
                     placeholder="e.g. Critical water outage affecting Ward 11, Gelvandale and Bethelsdorp. Emergency water tankers deployed to Gelvan Bowling Club."
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                   />
                 </div>
 
@@ -1052,7 +1084,7 @@ export const InAppEditor: React.FC = () => {
                           active_patrols: Number(e.target.value),
                         })
                       }
-                      className="w-full px-3 py-2 text-sm font-bold rounded-lg bg-slate-900 border border-slate-700 text-red-400 focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 text-sm font-bold rounded-lg bg-slate-900 border border-slate-700 text-red-400 focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -1086,7 +1118,7 @@ export const InAppEditor: React.FC = () => {
                           community_volunteers: Number(e.target.value),
                         })
                       }
-                      className="w-full px-3 py-2 text-sm font-bold rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 text-sm font-bold rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
                 </div>
@@ -1135,7 +1167,7 @@ export const InAppEditor: React.FC = () => {
                           },
                         })
                       }
-                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -1155,7 +1187,7 @@ export const InAppEditor: React.FC = () => {
                           },
                         })
                       }
-                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -1175,7 +1207,7 @@ export const InAppEditor: React.FC = () => {
                           },
                         })
                       }
-                      className="w-full px-3 py-2 text-xs font-mono font-bold rounded-lg bg-slate-900 border border-slate-700 text-amber-300 focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 text-xs font-mono font-bold rounded-lg bg-slate-900 border border-slate-700 text-amber-300 focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -1195,7 +1227,7 @@ export const InAppEditor: React.FC = () => {
                           },
                         })
                       }
-                      className="w-full px-3 py-2 text-xs font-mono rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 text-xs font-mono rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -1215,7 +1247,7 @@ export const InAppEditor: React.FC = () => {
                           },
                         })
                       }
-                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -1235,7 +1267,7 @@ export const InAppEditor: React.FC = () => {
                           },
                         })
                       }
-                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
                 </div>
@@ -1293,7 +1325,7 @@ export const InAppEditor: React.FC = () => {
                       <select
                         value={issueStatusUpdate}
                         onChange={(e) => setIssueStatusUpdate(e.target.value as IssueStatus)}
-                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       >
                         <option value="Reported">Reported</option>
                         <option value="Under Investigation">Under Investigation</option>
@@ -1312,7 +1344,7 @@ export const InAppEditor: React.FC = () => {
                         value={issueDepotUpdate}
                         onChange={(e) => setIssueDepotUpdate(e.target.value)}
                         placeholder="e.g. Korsten Municipal Depot Unit 4"
-                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       >
                       </input>
                     </div>
@@ -1326,7 +1358,7 @@ export const InAppEditor: React.FC = () => {
                         value={issueNoteUpdate}
                         onChange={(e) => setIssueNoteUpdate(e.target.value)}
                         placeholder="e.g. Water team on-site. Valve isolated, replacement pipe sections delivered."
-                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       />
                     </div>
                   </div>
@@ -1443,7 +1475,7 @@ export const InAppEditor: React.FC = () => {
                         onChange={(e) => setNewNotice({ ...newNotice, title: e.target.value })}
                         placeholder="e.g. Copper Cable Stripping and Power Tripping"
                         required
-                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       />
                     </div>
 
@@ -1459,7 +1491,7 @@ export const InAppEditor: React.FC = () => {
                             alert_level: e.target.value as any,
                           })
                         }
-                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       >
                         <option value="High Alert">High Alert</option>
                         <option value="Warning">Warning</option>
@@ -1478,7 +1510,7 @@ export const InAppEditor: React.FC = () => {
                         onChange={(e) => setNewNotice({ ...newNotice, area: e.target.value })}
                         placeholder="e.g. Gelvandale / Algoa Park"
                         required
-                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       />
                     </div>
 
@@ -1493,7 +1525,7 @@ export const InAppEditor: React.FC = () => {
                           setNewNotice({ ...newNotice, incident_type: e.target.value })
                         }
                         placeholder="e.g. Infrastructure Theft"
-                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       />
                     </div>
 
@@ -1508,7 +1540,7 @@ export const InAppEditor: React.FC = () => {
                           setNewNotice({ ...newNotice, time_reported: e.target.value })
                         }
                         placeholder="e.g. Today, 04:30 AM"
-                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       />
                     </div>
 
@@ -1521,7 +1553,7 @@ export const InAppEditor: React.FC = () => {
                         value={newNotice.advice}
                         onChange={(e) => setNewNotice({ ...newNotice, advice: e.target.value })}
                         placeholder="e.g. Keep perimeter lighting on. Patrol unit 12 deployed. Report sightings to 10111 immediately."
-                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       />
                     </div>
                   </div>
@@ -1602,7 +1634,7 @@ export const InAppEditor: React.FC = () => {
                         onChange={(e) => setNewWork({ ...newWork, title: e.target.value })}
                         placeholder="e.g. Gelvandale Clean Water Tanker Dispatch"
                         required
-                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       />
                     </div>
 
@@ -1618,7 +1650,7 @@ export const InAppEditor: React.FC = () => {
                             category: e.target.value as any,
                           })
                         }
-                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       >
                         <option value="Soup Kitchen">Soup Kitchen</option>
                         <option value="Water Distribution">Water Distribution</option>
@@ -1637,7 +1669,7 @@ export const InAppEditor: React.FC = () => {
                         value={newWork.description}
                         onChange={(e) => setNewWork({ ...newWork, description: e.target.value })}
                         placeholder="Details of relief distribution, community impact, and schedule..."
-                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       />
                     </div>
 
@@ -1651,7 +1683,7 @@ export const InAppEditor: React.FC = () => {
                         onChange={(e) =>
                           setNewWork({ ...newWork, progress: Number(e.target.value) })
                         }
-                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       />
                     </div>
 
@@ -1665,7 +1697,7 @@ export const InAppEditor: React.FC = () => {
                         onChange={(e) =>
                           setNewWork({ ...newWork, target: Number(e.target.value) })
                         }
-                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       />
                     </div>
 
@@ -1678,7 +1710,7 @@ export const InAppEditor: React.FC = () => {
                         value={newWork.unit}
                         onChange={(e) => setNewWork({ ...newWork, unit: e.target.value })}
                         placeholder="e.g. Litres / Meals / Potholes"
-                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       />
                     </div>
                   </div>
@@ -1757,7 +1789,7 @@ export const InAppEditor: React.FC = () => {
                         onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
                         placeholder="e.g. Weekend Food Drive & Clean Water Distribution Schedule"
                         required
-                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       />
                     </div>
 
@@ -1773,7 +1805,7 @@ export const InAppEditor: React.FC = () => {
                             category: e.target.value as any,
                           })
                         }
-                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       >
                         <option value="announcements">Announcements</option>
                         <option value="community-work">Community Work</option>
@@ -1793,7 +1825,7 @@ export const InAppEditor: React.FC = () => {
                         onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
                         placeholder="Write detailed statement or update to residents..."
                         required
-                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       />
                     </div>
                   </div>
@@ -1880,7 +1912,7 @@ export const InAppEditor: React.FC = () => {
                       onChange={(e) =>
                         setFormSettings({ ...formSettings, founder_name: e.target.value })
                       }
-                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
                   <div>
@@ -1891,7 +1923,7 @@ export const InAppEditor: React.FC = () => {
                       onChange={(e) =>
                         setFormSettings({ ...formSettings, founder_title: e.target.value })
                       }
-                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-amber-300 focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-amber-300 focus:outline-none focus:border-blue-500"
                     />
                   </div>
                   <div className="sm:col-span-2">
@@ -1902,7 +1934,7 @@ export const InAppEditor: React.FC = () => {
                       onChange={(e) =>
                         setFormSettings({ ...formSettings, founder_quote: e.target.value })
                       }
-                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-200 italic focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-200 italic focus:outline-none focus:border-blue-500"
                     />
                   </div>
                   <div className="sm:col-span-2">
@@ -1913,7 +1945,7 @@ export const InAppEditor: React.FC = () => {
                       onChange={(e) =>
                         setFormSettings({ ...formSettings, founder_bio: e.target.value })
                       }
-                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
                   <div>
@@ -1924,7 +1956,7 @@ export const InAppEditor: React.FC = () => {
                       onChange={(e) =>
                         setFormSettings({ ...formSettings, founder_phone: e.target.value })
                       }
-                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
                   <div>
@@ -1935,7 +1967,7 @@ export const InAppEditor: React.FC = () => {
                       onChange={(e) =>
                         setFormSettings({ ...formSettings, founder_email: e.target.value })
                       }
-                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
                 </div>
@@ -2004,7 +2036,7 @@ export const InAppEditor: React.FC = () => {
                         placeholder="e.g. Bradley Matthews"
                         value={newLeader.name}
                         onChange={(e) => setNewLeader({ ...newLeader, name: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       />
                     </div>
 
@@ -2016,7 +2048,7 @@ export const InAppEditor: React.FC = () => {
                         placeholder="e.g. Bethelsdorp Relief Convener"
                         value={newLeader.role_title}
                         onChange={(e) => setNewLeader({ ...newLeader, role_title: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       />
                     </div>
 
@@ -2030,7 +2062,7 @@ export const InAppEditor: React.FC = () => {
                             category: e.target.value as 'executive' | 'ward_coordinator' | 'community_lead',
                           })
                         }
-                        className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       >
                         <option value="executive">Executive Board</option>
                         <option value="ward_coordinator">Ward Coordinator</option>
@@ -2046,7 +2078,7 @@ export const InAppEditor: React.FC = () => {
                         placeholder="e.g. Helenvale / Ward 11"
                         value={newLeader.ward_or_area}
                         onChange={(e) => setNewLeader({ ...newLeader, ward_or_area: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       />
                     </div>
 
@@ -2057,7 +2089,7 @@ export const InAppEditor: React.FC = () => {
                         placeholder="082 334 5566"
                         value={newLeader.phone}
                         onChange={(e) => setNewLeader({ ...newLeader, phone: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       />
                     </div>
 
@@ -2068,7 +2100,7 @@ export const InAppEditor: React.FC = () => {
                         placeholder="bradley@citizenofpemetro.org.za"
                         value={newLeader.email}
                         onChange={(e) => setNewLeader({ ...newLeader, email: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       />
                     </div>
 
@@ -2079,7 +2111,7 @@ export const InAppEditor: React.FC = () => {
                         placeholder="Patrol Leader, Soup Kitchens, Water Taskforce"
                         value={newLeader.badges}
                         onChange={(e) => setNewLeader({ ...newLeader, badges: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       />
                     </div>
 
@@ -2090,7 +2122,7 @@ export const InAppEditor: React.FC = () => {
                         placeholder="Brief summary of their community action history..."
                         value={newLeader.bio}
                         onChange={(e) => setNewLeader({ ...newLeader, bio: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                        className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                       />
                     </div>
                   </div>
@@ -2204,7 +2236,7 @@ export const InAppEditor: React.FC = () => {
                       placeholder="e.g. Jason Fredericks"
                       value={newMemberInput.name}
                       onChange={(e) => setNewMemberInput({ ...newMemberInput, name: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -2216,7 +2248,7 @@ export const InAppEditor: React.FC = () => {
                       placeholder="jason@gmail.com"
                       value={newMemberInput.email}
                       onChange={(e) => setNewMemberInput({ ...newMemberInput, email: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -2227,7 +2259,7 @@ export const InAppEditor: React.FC = () => {
                       placeholder="083 456 7890"
                       value={newMemberInput.phone}
                       onChange={(e) => setNewMemberInput({ ...newMemberInput, phone: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -2238,7 +2270,7 @@ export const InAppEditor: React.FC = () => {
                       placeholder="Gelvandale / Ward 13"
                       value={newMemberInput.area}
                       onChange={(e) => setNewMemberInput({ ...newMemberInput, area: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
@@ -2252,7 +2284,7 @@ export const InAppEditor: React.FC = () => {
                           role: e.target.value as 'admin' | 'moderator' | 'member',
                         })
                       }
-                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-red-500"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-blue-500"
                     >
                       <option value="member">Civil Volunteer / Member</option>
                       <option value="moderator">Ward Moderator / Coordinator</option>
@@ -2360,6 +2392,12 @@ export const InAppEditor: React.FC = () => {
       <FacebookImporterModal
         isOpen={isFbModalOpen}
         onClose={() => setIsFbModalOpen(false)}
+      />
+
+      {/* Supabase Cloud Database Status & Sync Modal */}
+      <SupabaseStatusModal
+        isOpen={isDbModalOpen}
+        onClose={() => setIsDbModalOpen(false)}
       />
     </div>
   );

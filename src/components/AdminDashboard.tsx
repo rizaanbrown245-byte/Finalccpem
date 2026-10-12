@@ -11,10 +11,14 @@ import {
   Settings,
   Filter,
   Sliders,
+  Database,
+  Trash2,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { IssueStatus } from '../types';
+import { SupabaseStatusModal } from './SupabaseStatusModal';
+import { SupabaseBackendView } from './SupabaseBackendView';
 
 export const AdminDashboard: React.FC = () => {
   const {
@@ -28,15 +32,21 @@ export const AdminDashboard: React.FC = () => {
     createSafetyNotice,
     setIsEditorOpen,
     setEditorActiveSection,
+    posts,
+    gallery,
+    clearAllPosts,
+    clearAllGallery,
+    clearAllDemoContent,
   } = useApp();
   const { currentUser } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'issues' | 'stats' | 'notice'>('issues');
+  const [activeTab, setActiveTab] = useState<'issues' | 'stats' | 'notice' | 'supabase'>('issues');
   const [selectedIssueId, setSelectedIssueId] = useState<string | null>(issues[0]?.id || null);
   const [statusToSet, setStatusToSet] = useState<IssueStatus>('Under Investigation');
   const [assignedTeam, setAssignedTeam] = useState('Central PE Roads & Stormwater Depot');
   const [adminNote, setAdminNote] = useState('');
   const [updateSaved, setUpdateSaved] = useState(false);
+  const [isDbModalOpen, setIsDbModalOpen] = useState(false);
 
   // Notice form
   const [noticeTitle, setNoticeTitle] = useState('');
@@ -149,6 +159,19 @@ export const AdminDashboard: React.FC = () => {
           </button>
           <button
             type="button"
+            onClick={() => setActiveTab('supabase')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold transition ${
+              activeTab === 'supabase'
+                ? 'bg-emerald-600 text-white shadow-sm'
+                : 'text-emerald-400 hover:text-white hover:bg-emerald-950/50'
+            }`}
+          >
+            <Database className="w-3.5 h-3.5" />
+            <span>Supabase Backend</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          </button>
+          <button
+            type="button"
             onClick={() => {
               setEditorActiveSection('branding');
               setIsEditorOpen(true);
@@ -158,6 +181,31 @@ export const AdminDashboard: React.FC = () => {
             <Sliders className="w-3.5 h-3.5" />
             <span>Open In-App Editor</span>
           </button>
+          <button
+            type="button"
+            onClick={() => setIsDbModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600/20 text-emerald-300 hover:bg-emerald-600 hover:text-white border border-emerald-500/40 font-semibold transition"
+            title="Inspect Supabase Cloud Database setup and sync"
+          >
+            <Database className="w-3.5 h-3.5" />
+            <span>Database & Cloud</span>
+          </button>
+
+          {(posts.length > 0 || gallery.length > 0 || safetyNotices.length > 0) && (
+            <button
+              type="button"
+              onClick={() => {
+                if (window.confirm('Are you sure you want to perform a clean sweep? This clears all demo photos, alert broadcasts, safety notices, and wall posts, leaving your portal completely clean for real community operations.')) {
+                  clearAllDemoContent();
+                }
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-950/70 hover:bg-rose-900 text-rose-300 hover:text-white border border-rose-800/80 font-bold transition text-xs shadow-sm"
+              title="Clean Sweep: Clear all demo photos, alerts, and posts"
+            >
+              <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+              <span>Clean Sweep (Photos, Alerts & Posts)</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -416,6 +464,19 @@ export const AdminDashboard: React.FC = () => {
           </form>
         </div>
       )}
+
+      {/* Supabase Cloud Backend Tab */}
+      {activeTab === 'supabase' && (
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
+          <SupabaseBackendView />
+        </div>
+      )}
+
+      {/* Database & Cloud Sync Modal */}
+      <SupabaseStatusModal
+        isOpen={isDbModalOpen}
+        onClose={() => setIsDbModalOpen(false)}
+      />
     </div>
   );
 };

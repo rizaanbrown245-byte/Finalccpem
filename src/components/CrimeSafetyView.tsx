@@ -13,12 +13,15 @@ import {
   AlertCircle,
   PlusCircle,
   X,
+  Trash2,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import { CrimeSafetyNotice } from '../types';
 
 export const CrimeSafetyView: React.FC = () => {
-  const { safetyNotices, emergencyContacts, createSafetyNotice } = useApp();
+  const { safetyNotices, emergencyContacts, createSafetyNotice, deleteSafetyNotice, clearAllSafetyNotices } = useApp();
+  const { isAdmin } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showTipModal, setShowTipModal] = useState(false);
 
@@ -76,14 +79,32 @@ export const CrimeSafetyView: React.FC = () => {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setShowTipModal(true)}
-          className="px-5 py-3 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-blue-900/40 flex items-center gap-2 transition whitespace-nowrap"
-        >
-          <PlusCircle className="w-4 h-4" />
-          <span>Post Community Safety Alert</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <button
+            type="button"
+            onClick={() => setShowTipModal(true)}
+            className="px-5 py-3 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-blue-900/40 flex items-center gap-2 transition whitespace-nowrap"
+          >
+            <PlusCircle className="w-4 h-4" />
+            <span>Post Community Safety Alert</span>
+          </button>
+
+          {isAdmin && safetyNotices.length > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                if (window.confirm('Are you sure you want to clear all crime and safety alert notices?')) {
+                  clearAllSafetyNotices();
+                }
+              }}
+              className="px-4 py-3 rounded-xl bg-rose-950/70 hover:bg-rose-900 text-rose-300 border border-rose-800/80 font-bold text-xs shadow transition flex items-center gap-1.5 whitespace-nowrap"
+              title="Admin: Clear all alerts"
+            >
+              <Trash2 className="w-4 h-4 text-rose-400" />
+              <span>Clear All Alerts ({safetyNotices.length})</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Emergency Hotlines Directory */}
@@ -148,6 +169,29 @@ export const CrimeSafetyView: React.FC = () => {
         </span>
       </div>
 
+      {/* Empty State when no safety notices */}
+      {filteredNotices.length === 0 && (
+        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-10 text-center space-y-4 shadow-md">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-slate-800 flex items-center justify-center text-slate-400">
+            <Shield className="w-7 h-7 text-emerald-400" />
+          </div>
+          <div className="space-y-1.5 max-w-md mx-auto">
+            <h3 className="text-lg font-bold text-white">No Active Alerts in This Area</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              All demo alerts have been cleared. No critical crime or hazard warnings are currently flagged. Use the button above to log a verified bulletin.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowTipModal(true)}
+            className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition inline-flex items-center gap-1.5 shadow"
+          >
+            <PlusCircle className="w-4 h-4" />
+            <span>Post New Safety Alert</span>
+          </button>
+        </div>
+      )}
+
       {/* Safety Notices List */}
       <div className="space-y-4">
         {filteredNotices.map((notice) => (
@@ -181,9 +225,26 @@ export const CrimeSafetyView: React.FC = () => {
                 </span>
               </div>
 
-              <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                <Clock className="w-3.5 h-3.5" />
-                <span>{notice.date}</span>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>{notice.date}</span>
+                </div>
+
+                {isAdmin && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm('Delete this safety alert bulletin?')) {
+                        deleteSafetyNotice(notice.id);
+                      }
+                    }}
+                    className="p-1 rounded text-slate-500 hover:text-rose-400 hover:bg-rose-950/40 transition"
+                    title="Delete alert"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                )}
               </div>
             </div>
 

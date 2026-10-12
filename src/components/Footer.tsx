@@ -13,6 +13,7 @@ import {
   Sliders,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 
 interface FooterProps {
   onSelectTab: (tab: string) => void;
@@ -26,6 +27,7 @@ export const Footer: React.FC<FooterProps> = ({
   onOpenTrackerModal,
 }) => {
   const { settings, emergencyContacts, setIsEditorOpen } = useApp();
+  const { isAdmin } = useAuth();
 
   return (
     <footer className="bg-[#050912] border-t border-blue-950/80 text-slate-400 text-xs mt-16">
@@ -74,14 +76,17 @@ export const Footer: React.FC<FooterProps> = ({
             >
               Support Soup Kitchens
             </button>
-            <button
-              type="button"
-              onClick={() => setIsEditorOpen(true)}
-              className="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-600/40 font-semibold transition flex items-center gap-1.5"
-            >
-              <Sliders className="w-3.5 h-3.5 text-amber-400" />
-              <span>In-App Editor</span>
-            </button>
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => setIsEditorOpen(true)}
+                className="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-600/40 font-semibold transition flex items-center gap-1.5"
+                title="In-App Editor (Admin Only)"
+              >
+                <Sliders className="w-3.5 h-3.5 text-amber-400" />
+                <span>In-App Editor</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

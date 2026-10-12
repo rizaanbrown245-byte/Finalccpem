@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { AppProvider } from './context/AppContext';
+import React, { useState, useEffect } from 'react';
+import { AppProvider, useApp } from './context/AppContext';
 import { AuthProvider } from './context/AuthContext';
+import { NotificationProvider, useNotifications } from './context/NotificationContext';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { HomeView } from './components/HomeView';
@@ -13,10 +14,13 @@ import { GalleryView } from './components/GalleryView';
 import { SupportersView } from './components/SupportersView';
 import { ContactView } from './components/ContactView';
 import { AdminDashboard } from './components/AdminDashboard';
+import { SupabaseBackendView } from './components/SupabaseBackendView';
 import { ReportIssueModal } from './components/ReportIssueModal';
 import { IssueTrackerModal } from './components/IssueTrackerModal';
 import { LoginModal } from './components/LoginModal';
 import { InAppEditor } from './components/InAppEditor';
+import { NotificationToast } from './components/NotificationToast';
+import { NotificationCenterModal } from './components/NotificationCenterModal';
 
 function MainPortal() {
   const [activeTab, setActiveTab] = useState<string>('home');
@@ -24,6 +28,28 @@ function MainPortal() {
   const [trackerModalOpen, setTrackerModalOpen] = useState(false);
   const [trackerInitialRef, setTrackerInitialRef] = useState<string | null>(null);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
+
+  const { isPanelOpen, setIsPanelOpen, checkStatusChanges } = useNotifications();
+  const { issues } = useApp();
+
+  // Detect and notify whenever any followed issue receives a status update
+  useEffect(() => {
+    checkStatusChanges(issues);
+  }, [issues, checkStatusChanges]);
+
+  // Deep-linking: automatically open issue tracker modal if ?issue=CPM-XXXX is in the URL
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const issueRef = params.get('issue');
+      if (issueRef) {
+        setTrackerInitialRef(issueRef);
+        setTrackerModalOpen(true);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
   // Track specific issue by reference code
   const handleTrackIssue = (ref: string) => {
@@ -86,6 +112,8 @@ function MainPortal() {
         {activeTab === 'contact' && <ContactView />}
 
         {activeTab === 'admin' && <AdminDashboard />}
+
+        {activeTab === 'supabase' && <SupabaseBackendView />}
       </main>
 
       {/* Report Municipal Issue Modal */}
@@ -117,6 +145,16 @@ function MainPortal() {
       {/* In-App Live Content & Site Editor */}
       <InAppEditor />
 
+      {/* Toast Alert for Tracked Issue Updates */}
+      <NotificationToast onOpenIssue={handleTrackIssue} />
+
+      {/* Notifications & Tracked Issues Center */}
+      <NotificationCenterModal
+        isOpen={isPanelOpen}
+        onClose={() => setIsPanelOpen(false)}
+        onOpenIssue={handleTrackIssue}
+      />
+
       {/* Footer with "Made by RB digital solutions" */}
       <Footer
         onSelectTab={handleSelectTab}
@@ -134,7 +172,9 @@ export function App() {
   return (
     <AppProvider>
       <AuthProvider>
-        <MainPortal />
+        <NotificationProvider>
+          <MainPortal />
+        </NotificationProvider>
       </AuthProvider>
     </AppProvider>
   );

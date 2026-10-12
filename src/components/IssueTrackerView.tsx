@@ -12,9 +12,11 @@ import {
   ArrowRight,
   Shield,
   Layers,
+  Share2,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { CommunityIssue, IssueCategory, IssueStatus } from '../types';
+import { ShareIssueModal } from './ShareIssueModal';
 
 interface IssueTrackerViewProps {
   onOpenReportModal: () => void;
@@ -30,6 +32,7 @@ export const IssueTrackerView: React.FC<IssueTrackerViewProps> = ({
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [suburbFilter, setSuburbFilter] = useState<string>('all');
+  const [sharingIssue, setSharingIssue] = useState<CommunityIssue | null>(null);
 
   // Unique suburbs present in issues
   const availableSuburbs = Array.from(new Set(issues.map((i) => i.suburb)));
@@ -279,16 +282,38 @@ export const IssueTrackerView: React.FC<IssueTrackerViewProps> = ({
                     </div>
                   </div>
 
-                  <span className="text-blue-400 font-bold text-xs flex items-center gap-1 group-hover:underline">
-                    <span>View Timeline ({issue.timeline.length} updates)</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSharingIssue(issue);
+                      }}
+                      className="px-2.5 py-1.5 rounded-lg bg-emerald-950/60 hover:bg-emerald-900/80 text-emerald-300 border border-emerald-800/80 font-bold text-xs flex items-center gap-1.5 transition"
+                      title="Share issue on WhatsApp or social media"
+                    >
+                      <Share2 className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Share</span>
+                    </button>
+
+                    <span className="text-blue-400 font-bold text-xs flex items-center gap-1 group-hover:underline">
+                      <span>View Timeline ({issue.timeline.length} updates)</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </span>
+                  </div>
                 </div>
               </div>
             );
           })
         )}
       </div>
+
+      {/* Share Issue Modal */}
+      <ShareIssueModal
+        issue={sharingIssue}
+        isOpen={!!sharingIssue}
+        onClose={() => setSharingIssue(null)}
+      />
     </div>
   );
 };

@@ -18,6 +18,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Maximize2,
+  Trash2,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
@@ -25,8 +26,8 @@ import { FacebookImporterModal } from './FacebookImporterModal';
 import { ImageFolderUploader } from './ImageFolderUploader';
 
 export const MemberUpdatesView: React.FC = () => {
-  const { posts, likePost, addComment, createPost, settings } = useApp();
-  const { currentUser } = useAuth();
+  const { posts, likePost, addComment, createPost, deletePost, clearAllPosts, settings } = useApp();
+  const { currentUser, isAdmin } = useAuth();
 
   const [newPostModalOpen, setNewPostModalOpen] = useState(false);
   const [fbModalOpen, setFbModalOpen] = useState(false);
@@ -128,8 +129,56 @@ export const MemberUpdatesView: React.FC = () => {
             <span className="hidden sm:inline">Import from Facebook</span>
             <span className="sm:hidden">FB Sync</span>
           </button>
+
+          {isAdmin && posts.length > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                if (window.confirm('Are you sure you want to clear all community posts?')) {
+                  clearAllPosts();
+                }
+              }}
+              className="px-3.5 py-2.5 rounded-xl bg-rose-950/70 hover:bg-rose-900 text-rose-300 border border-rose-800/80 font-bold text-xs shadow transition flex items-center gap-1.5"
+              title="Admin: Clear all community posts"
+            >
+              <Trash2 className="w-4 h-4 text-rose-400" />
+              <span>Clear All Posts ({posts.length})</span>
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Empty State when no posts */}
+      {posts.length === 0 && (
+        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-10 text-center space-y-4 shadow-md">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-slate-800 flex items-center justify-center text-slate-400">
+            <MessageSquare className="w-7 h-7" />
+          </div>
+          <div className="space-y-1.5 max-w-md mx-auto">
+            <h3 className="text-lg font-bold text-white">No Posts on Community Wall</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              All demo posts have been cleared. Be the first to publish a verified community field report, share a photo album, or import official updates from Facebook.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => openNewPost(false)}
+              className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow"
+            >
+              <PlusCircle className="w-4 h-4" />
+              <span>Write First Post</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setFbModalOpen(true)}
+              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-300 border border-slate-700 font-bold text-xs transition flex items-center gap-1.5"
+            >
+              <span>Sync Facebook Posts</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Posts Stream */}
       <div className="space-y-6">
@@ -181,6 +230,21 @@ export const MemberUpdatesView: React.FC = () => {
                 <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-slate-800 text-amber-300 border border-slate-700">
                   {post.category}
                 </span>
+
+                {isAdmin && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm('Delete this post?')) {
+                        deletePost(post.id);
+                      }
+                    }}
+                    className="p-1 rounded text-slate-500 hover:text-rose-400 hover:bg-rose-950/40 transition"
+                    title="Delete post"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                )}
               </div>
             </div>
 

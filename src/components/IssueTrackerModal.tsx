@@ -13,9 +13,13 @@ import {
   Shield,
   Layers,
   ChevronRight,
+  Bell,
+  Share2,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { useNotifications } from '../context/NotificationContext';
 import { CommunityIssue, IssueStatus } from '../types';
+import { ShareIssueModal } from './ShareIssueModal';
 
 interface IssueTrackerModalProps {
   isOpen: boolean;
@@ -29,9 +33,11 @@ export const IssueTrackerModal: React.FC<IssueTrackerModalProps> = ({
   initialRef,
 }) => {
   const { issues, getIssueByRef } = useApp();
+  const { followIssue, unfollowIssue, isFollowing } = useNotifications();
   const [searchRef, setSearchRef] = useState(initialRef || '');
   const [selectedIssue, setSelectedIssue] = useState<CommunityIssue | null>(null);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   useEffect(() => {
     if (initialRef) {
@@ -241,6 +247,53 @@ export const IssueTrackerModal: React.FC<IssueTrackerModalProps> = ({
                     />
                   </div>
                 )}
+
+                {/* Follow & Share Actions Bar */}
+                <div className="pt-2 border-t border-slate-900 flex flex-wrap items-center justify-between gap-2">
+                  <div className="text-[11px] text-slate-400">
+                    Share or track alerts when municipal task teams update this report
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShareModalOpen(true)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition bg-emerald-600/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-600/30"
+                      title="Generate unique share link for WhatsApp or social media"
+                    >
+                      <Share2 className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Share Issue</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (isFollowing(selectedIssue.reference_number)) {
+                          unfollowIssue(selectedIssue.reference_number);
+                        } else {
+                          followIssue(selectedIssue.reference_number, selectedIssue.status);
+                        }
+                      }}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition border ${
+                        isFollowing(selectedIssue.reference_number)
+                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 hover:bg-amber-500/30'
+                          : 'bg-slate-900 text-slate-300 border-slate-700 hover:text-white hover:border-slate-500'
+                      }`}
+                    >
+                      <Bell
+                        className={`w-3.5 h-3.5 ${
+                          isFollowing(selectedIssue.reference_number)
+                            ? 'text-amber-400 fill-amber-400'
+                            : 'text-slate-400'
+                        }`}
+                      />
+                      <span>
+                        {isFollowing(selectedIssue.reference_number)
+                          ? 'Tracking Active'
+                          : 'Follow Updates'}
+                      </span>
+                    </button>
+                  </div>
+                </div>
               </div>
 
               {/* Assigned Municipal Team */}
@@ -308,6 +361,13 @@ export const IssueTrackerModal: React.FC<IssueTrackerModalProps> = ({
           )}
         </div>
       </div>
+
+      {/* Share Issue Modal */}
+      <ShareIssueModal
+        issue={selectedIssue}
+        isOpen={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+      />
     </div>
   );
 };
